@@ -1,0 +1,94 @@
+{
+  "description": "Vagrant box for 64-bit x86 Windows 10",
+  "variables": {
+    "autounattend": "Autounattend/windows10_64/Autounattend.xml",
+    "boot_wait": "2m",
+    "communicator": "winrm",
+    "communicator_insecure": "true",
+    "communicator_password": "vagrant",
+    "communicator_timeout": "120m",
+    "communicator_use_ntlm": "false",
+    "communicator_use_ssl": "false",
+    "communicator_username": "vagrant",
+    "cpus": "2",
+    "disk_size": "20000",
+    "guest_additions_mode": "attach",
+    "headless": "true",
+    "hard_drive_interface": "ide",
+    "iso_checksum": "bb01dd75f9394481aa27651625cf42cecf6884a9",
+    "iso_checksum_type": "sha1",
+    "iso_interface": "ide",
+    "iso_file": "17763.107.101029-1455.rs5_release_svc_refresh_CLIENTENTERPRISEEVAL_OEMRET_x64FRE_fr-fr.iso",
+    "iso_path":"iso",
+    "iso_url":"https://software-download.microsoft.com/download/pr",
+    "memory": "2048",
+    "net_device": "e1000",
+    "output_directory": "build/{{isotime \"2006-01-02-15-04-05\"}}",
+    "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+    "shutdown_timeout": "5m",
+    "vagrantfile_template": "Vagrantfile-windows10_64.template",
+    "virtualbox-iso_format": "ova",
+    "vm_name": "Windows10_64"
+  },
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "guest_os_type": "Windows10_64",
+      "hard_drive_interface": "{{user `hard_drive_interface`}}",
+      "disk_size": "{{user `disk_size`}}",
+      "iso_interface": "{{user `iso_interface`}}",
+      "iso_urls": [
+        "{{user `iso_path`}}/{{user `iso_file`}}",
+        "{{user `iso_url`}}/{{user `iso_file`}}"
+      ],
+      "iso_target_path": "{{user `iso_path`}}/{{user `iso_file`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "boot_wait": "{{user `boot_wait`}}",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "scripts/ConfigureRemotingForAnsible.ps1",
+        "scripts/SettingNetworkLocationToPrivate.ps1"
+      ],
+      "format": "{{user `virtualbox-iso_format`}}",
+      "guest_additions_mode": "{{user `guest_additions_mode`}}",
+      "headless": "{{user `headless`}}",
+      "shutdown_command": "{{user `shutdown_command`}}",
+      "shutdown_timeout": "{{user `shutdown_timeout`}}",
+      "vboxmanage": [
+        [ "modifyvm", "{{.Name}}", "--memory", "{{user `memory`}}" ],
+        [ "modifyvm", "{{.Name}}", "--cpus", "{{user `cpus`}}" ]
+      ],
+      "vm_name": "{{user `vm_name`}}",
+      "communicator": "{{user `communicator`}}",
+      "winrm_timeout": "{{user `communicator_timeout`}}",
+      "winrm_username": "{{user `communicator_username`}}",
+      "winrm_insecure": "{{user `communicator_insecure`}}",
+      "winrm_password": "{{user `communicator_password`}}",
+      "winrm_use_ntlm": "{{user `communicator_use_ntlm`}}",
+      "winrm_use_ssl": "{{user `communicator_use_ssl`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "powershell",
+      "script": "scripts/VirtualBoxGuestAdditionsInstall.ps1"
+    },
+    {
+      "type": "powershell",
+      "scripts": [
+            "scripts/EnableRDP.ps1",
+            "scripts/PasswordNeverExpire.ps1",
+            "scripts/DisableAutologin.ps1",
+            "scripts/WindowsUpdate.ps1"
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "{{user `output_directory`}}/{{user `vm_name`}}-{{build_name}}.box",
+      "vagrantfile_template": "{{user `vagrantfile_template`}}"
+    }
+  ]
+}
