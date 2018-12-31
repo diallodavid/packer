@@ -21,6 +21,7 @@
     "iso_url":"http://download.microsoft.com/download/5/A/2/5A2C8AEF-EDD8-4025-801B-C7171FAF761D",
     "memory": "2048",
     "output_directory": "build/{{isotime \"2006-01-02-15-04-05\"}}",
+    "qemu_format": "qcow2",
     "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
     "shutdown_timeout": "5m",
     "vagrantfile_template": "Vagrantfile-windows2016.template",
@@ -62,12 +63,52 @@
       "winrm_password": "{{user `communicator_password`}}",
       "winrm_use_ntlm": "{{user `communicator_use_ntlm`}}",
       "winrm_use_ssl": "{{user `communicator_use_ssl`}}"
+    },
+    {
+      "type": "qemu",
+      "qemu_binary": "qemu-system-x86_64",
+      "accelerator": "kvm",
+      "iso_urls": [
+        "{{user `iso_path`}}/{{user `iso_file`}}",
+        "{{user `iso_url`}}/{{user `iso_file`}}"
+      ],
+      "iso_target_path": "{{user `iso_path`}}/{{user `iso_file`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "disk_interface": "{{user `hard_drive_interface`}}",
+      "disk_size": "{{user `disk_size`}}",
+      "boot_wait": "{{user `boot_wait`}}",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "scripts/ConfigureRemotingForAnsible.ps1",
+        "scripts/SettingNetworkLocationToPrivate.ps1"
+      ],
+      "format": "{{user `qemu_format`}}",
+      "headless": "{{user `headless`}}",
+      "net_device": "{{user `net_device`}}",
+      "shutdown_command": "{{user `shutdown_command`}}",
+      "shutdown_timeout": "{{user `shutdown_timeout`}}",
+      "qemuargs": [
+        [ "-m", "{{user `memory`}}M" ],
+        [ "-smp", "{{user `cpus`}}" ],
+        [ "-netdev", "user,hostfwd=tcp::{{.SSHHostPort}}-:5985,id=winrm" ],
+        [ "-device", "{{user `net_device`}},netdev=winrm" ]
+      ],
+      "vm_name": "{{user `vm_name`}}",
+      "communicator": "{{user `communicator`}}",
+      "winrm_timeout": "{{user `communicator_timeout`}}",
+      "winrm_username": "{{user `communicator_username`}}",
+      "winrm_insecure": "{{user `communicator_insecure`}}",
+      "winrm_password": "{{user `communicator_password`}}",
+      "winrm_use_ntlm": "{{user `communicator_use_ntlm`}}",
+      "winrm_use_ssl": "{{user `communicator_use_ssl`}}"
     }
   ],
   "provisioners": [
     {
       "type": "powershell",
-      "script": "scripts/VirtualBoxGuestAdditionsInstall.ps1"
+      "script": "scripts/VirtualBoxGuestAdditionsInstall.ps1",
+      "only": ["virtualbox-iso"]
     },
     {
       "type": "powershell",
