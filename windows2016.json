@@ -14,15 +14,12 @@
     "disk_size": "20000",
     "guest_additions_mode": "attach",
     "headless": "true",
-    "hard_drive_interface": "ide",
     "iso_checksum": "468b4d2bf9c947f7f904358736fe8e713aba6202",
     "iso_checksum_type": "sha1",
-    "iso_interface": "ide",
     "iso_file": "14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_FR-FR.ISO",
     "iso_path":"iso",
     "iso_url":"http://download.microsoft.com/download/5/A/2/5A2C8AEF-EDD8-4025-801B-C7171FAF761D",
     "memory": "2048",
-    "net_device": "e1000",
     "output_directory": "build/{{isotime \"2006-01-02-15-04-05\"}}",
     "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
     "shutdown_timeout": "5m",
@@ -34,9 +31,7 @@
     {
       "type": "virtualbox-iso",
       "guest_os_type": "Windows10_64",
-      "hard_drive_interface": "{{user `hard_drive_interface`}}",
       "disk_size": "{{user `disk_size`}}",
-      "iso_interface": "{{user `iso_interface`}}",
       "iso_urls": [
         "{{user `iso_path`}}/{{user `iso_file`}}",
         "{{user `iso_url`}}/{{user `iso_file`}}"
@@ -77,10 +72,10 @@
     {
       "type": "powershell",
       "scripts": [
-            "scripts/EnableRDP.ps1",
-            "scripts/PasswordNeverExpire.ps1",
-            "scripts/DisableAutologin.ps1",
-            "scripts/WindowsUpdate.ps1"
+        "scripts/EnableRDP.ps1",
+        "scripts/PasswordNeverExpire.ps1",
+        "scripts/DisableAutologin.ps1",
+        "scripts/WindowsUpdate.ps1"
       ]
     }
   ],
