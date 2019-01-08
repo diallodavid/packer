@@ -1,5 +1,5 @@
 {
-  "description": "Vagrant box for 64-bit x86 Ubuntu Server 18.04",
+  "description": "Vagrant box for 64-bit x86 Ubuntu Desktop 18.04",
   "variables": {
     "boot_wait": "5s",
     "communicator": "ssh",
@@ -12,18 +12,18 @@
     "guest_additions_mode": "attach",
     "headless": "true",
     "http_directory": "http",
-    "iso_checksum_file": "SHA256SUMS",
+    "iso_checksum": "bed8a55ae2a657f8349fe3271097cff3a5b8c3d1048cf258568f1601976fa30d",
     "iso_checksum_type": "sha256",
-    "iso_file": "ubuntu-18.04.1-server-amd64.iso",
+    "iso_file": "mini.iso",
     "iso_path":"iso",
-    "iso_url":"http://cdimage.ubuntu.com/ubuntu/releases/bionic/release",
+    "iso_url":"http://archive.ubuntu.com/ubuntu/dists/bionic/main/installer-amd64/current/images/netboot/",
     "memory": "2048",
     "output_directory": "build/{{isotime \"2006-01-02-15-04-05\"}}",
     "shutdown_command": "echo 'vagrant'|sudo -S shutdown -P now",
     "shutdown_timeout": "5m",
     "vagrantfile_template": "Vagrantfile-ubuntu18.04.template",
     "virtualbox-iso_format": "ova",
-    "vm_name": "UbuntuServer18.04_64"
+    "vm_name": "UbuntuDesktop18.04_64"
   },
   "builders": [
     {
@@ -35,14 +35,18 @@
         "{{user `iso_url`}}/{{user `iso_file`}}"
       ],
       "iso_target_path": "{{user `iso_path`}}/{{user `iso_file`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
-      "iso_checksum_url": "{{user `iso_url`}}/{{user `iso_checksum_file`}}",
       "boot_wait": "{{user `boot_wait`}}",
       "boot_command": [
-        "<esc><wait><esc><wait><enter><wait>",
+        "<tab>",
         "/install/vmlinuz initrd=/install/initrd.gz ",
         "auto=true debconf/priority=critical ",
-        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu18.04/preseed-server.cfg",
+        "debian-installer/language=fr ",
+        "debian-installer/country=FR ",
+        "keyboard-configuration/layoutcode=fr ",
+        "netcfg/get_hostname=localhost ",
+        "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu18.04/preseed-desktop.cfg",
         "<enter>"
       ],
       "format": "{{user `virtualbox-iso_format`}}",
